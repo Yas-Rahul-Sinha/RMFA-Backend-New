@@ -6,8 +6,8 @@ from data_assessment.client_portfolio import *
 from data_assessment.meeting_priority import getRule
 from data_assessment.client_instrument import *
 
-market_research = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Market Research")
-market_news = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Market News")
+market_research = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Market Research")
+market_news = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Market News")
 def byMarketResearchPortfolio(accounts,category,type):
     category_filter = market_research[market_research["Category"] == category]
     type_filter = category_filter[category_filter["Type"] == type]
@@ -27,13 +27,14 @@ def byMarketResearchPortfolio(accounts,category,type):
                 temp2["Impact"] = impact1
                 temp2["Portfolio_Size"] = numerize.numerize(getPortfolioMarketValue(account))
                 temp2["Reason"] = f"Impact of {round(impact1)}% on account {account} due to change in instrument {instrument} affected by change in {type} "
-                temp4.append(temp2.copy())
-        if len(temp4)!=0:
-            temp3[account] = temp4.copy()
-        if abs(impact2) > 0:
-            temp3["Overall_Impact"] = impact2
-        if len(temp3) != 0:
-            temp.append(temp3.copy())
+                # temp4.append(temp2.copy())
+                temp.append(temp2.copy())
+        # if len(temp4)!=0:
+        #     temp3[account] = temp4
+        # if abs(impact2) > 0:
+        #     temp3["Overall_Impact"] = impact2
+        # if len(temp3) != 0:
+        #     temp.append(temp3.copy())
     return temp
 
 def byMarketNewsPortfolio(accounts,category,type):
@@ -51,11 +52,12 @@ def byMarketNewsPortfolio(accounts,category,type):
                     temp2["Impact"] = type
                     temp2["Reason"] = f"{type} news on {category} affting {ch}"
                     temp2["Portfolio_Size"] = numerize.numerize(getPortfolioMarketValue(acc))
-                    temp4.append(temp2.copy())
-        if len(temp4)!=0:
-            temp3[acc] = temp4.copy()
-        if len(temp3) != 0:
-            temp.append(temp3.copy())
+                    temp.append(temp2.copy())
+        #             temp4.append(temp2.copy())
+        # if len(temp4)!=0:
+        #     temp3[acc] = temp4
+        # if len(temp3) != 0:
+        #     temp.append(temp3.copy())
     return temp
 
 def byInvestmentReviewPortfolio(accounts, type):
@@ -74,29 +76,30 @@ def byInvestmentReviewPortfolio(accounts, type):
                 temp2["Impact"] = result
                 temp2["Reason"] = f"Poor Account({acc}) Performance of yield {result}%"
                 temp2["Portfolio_Size"] = numerize.numerize(getPortfolioMarketValue(acc))
-                temp4.append(temp2.copy())
-        if len(temp4) != 0:
-            temp3[acc] = temp4.copy()
-        if len(temp3) != 0:
-            temp.append(temp3.copy())
-        return temp
+                temp.append(temp2.copy())
+        #         temp4.append(temp2.copy())
+        # if len(temp4) != 0:
+        #     temp3[acc] = temp4
+        # if len(temp3) != 0:
+        #     temp.append(temp3.copy())
+    return temp
 
 def checkForOther(client,condition):
     temp = []
     temp2 = {}
     if condition["MainCategory"] == "Investment Review" and condition["SubCategory"] == "Periodic Portfolio Review":
-        all_clients = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx",sheet_name="Periodic Performance Review")
+        all_clients = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx",sheet_name="Periodic Performance Review")
         all_clients = all_clients["Client"].tolist()
         if client in all_clients:
             temp.append("This Client is on your Periodic Performance Review List")
     if condition["MainCategory"] == "Investment Review" and condition["SubCategory"] == "Personal Events":
-        all_clients = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Personal Events")
+        all_clients = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Personal Events")
         temp_client = all_clients[all_clients["Event_Type"] == "Investment Review"]
         temp_client = temp_client["Client_Name"].tolist()
         if client in temp_client:
             temp.append(f"Client has upcoming Personal Event: {all_clients.loc[all_clients['Client_Name'] == client,'Event']}")
     if condition["MainCategory"] == "Investment Review" and condition["SubCategory"] == "Portfolio Recommendation":
-        products = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="New Products")
+        products = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="New Products")
         current_investment = getClientTotalInvestment(client)
         filter_products = products[products["Probability_Customer_Portfolio_Amount"] <= current_investment]
         recommended_product_df = filter_products[
@@ -104,14 +107,14 @@ def checkForOther(client,condition):
         recommended_product = recommended_product_df["Product_Name"].iloc[0]
         temp.apppend(f"Product Recommendations:{recommended_product}")
     if condition["MainCategory"] == "Investment Review" and condition["SubCategory"] == "Additional Investment":
-        data = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Client Requested Meetings")
+        data = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Client Requested Meetings")
         filter_data = data[data["Reason"] == "Additional Investment"]
         required_data = filter_data[filter_data["Advisor"] == advisor]
         required_data = required_data["Client"].tolist()
         if client in required_data:
             temp.append("Client wants to make Additional Investment")
     if condition["MainCategory"] == "Other Client Communication":
-        data = pd.read_excel("../data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Client Requested Meetings")
+        data = pd.read_excel("data/WM Manager Dashboard Data SetV2.xlsx", sheet_name="Client Requested Meetings")
         filter_data = data[data["Reason"] == condition["SubCategory"]]
         required_data = filter_data[filter_data["Type"] == condition["MainCategory"]]
         required_data = required_data["Client"].tolist()
