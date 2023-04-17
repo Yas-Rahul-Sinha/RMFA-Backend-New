@@ -1,6 +1,8 @@
 import math
 
-from data_assessment.main import portfolios
+from data_assessment.main import *
+portfolios = pd.read_excel('data/WM Manager Dashboard Data SetV2.xlsx', sheet_name='Portfolio')
+portfolios = getAllMarketValues(portfolios)
 def getPortfolioData(account_no):
     port = portfolios[portfolios["Account"] == account_no]
     return port

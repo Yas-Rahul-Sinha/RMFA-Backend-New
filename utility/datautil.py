@@ -1,7 +1,9 @@
 import random
 
 import pandas as pd
-from data_assessment.main import portfolios
+from data_assessment.main import *
+portfolios = pd.read_excel('data/WM Manager Dashboard Data SetV2.xlsx', sheet_name='Portfolio')
+portfolios = getAllMarketValues(portfolios)
 # for i in portfolios["Investor Name"]:
 #     print(i)
 def randomProjection(current):
@@ -39,11 +41,10 @@ def fundProjection():
     ret["data"] = temp
     return ret
 def fetchMarketValue(client, instrument):
-    index = 0
-    for cli in portfolios["Investor_Name"]:
-        if cli == client and portfolios["Security_Description"][index] == instrument:
-            return round(portfolios["Market_Value"][index],2)
-        index+=1
+    client_filter = portfolios[portfolios["Investor_Name"] == client]
+    instrument_filter = client_filter[client_filter["Security_Description"] == instrument]
+    mv = instrument_filter.iloc[0]["Market_Value"]
+    return mv
 
 
 def calculateMarketValue(client, instrument, input):
@@ -61,13 +62,8 @@ def calculateMarketValue(client, instrument, input):
         index+=1
 
 def totalMarketValue(client):
-    total_market_value = 0
-    index=0
-    for cli in portfolios["Investor_Name"]:
-        if cli == client:
-            total_market_value += portfolios["Market_Value"][index]
-        index+=1
-    return round(total_market_value,2)
+    filter_data = portfolios[portfolios["Investor_Name"] == client]
+    return filter_data["Market_Value"].sum()
 
 def totalBookValue(client):
     total_book_value = 0
@@ -151,7 +147,7 @@ def marketSignalImpact(instrument, advisor, input):
             up_down = "No Impact"
         percentage_impact = impactOnAccount(data["Account"][index[pointer]],instrument,projected_value)
         temp["Investor_Name"] = i
-        temp["Account"] = data["Account"][index[pointer]]
+        temp["Account"] = str(data["Account"][index[pointer]])
         temp["Market_Value"] = data["Market_Value"][index[pointer]]
         temp["Projected_Value"] = projected_value
         temp["upDownIndicator"] = up_down
@@ -174,3 +170,5 @@ def getInstrumentData():
         ret[i["Security_Description"]] = {"Symbol":i["Symbol"], "12/31/2018":i["Price 12/31/2018"], "12/31/2019":i["Price 12/31/2019"], "12/31/2020":i["Price 12/31/2020"], "12/31/2021":i["Price 12/31/2021"], "03/31/2022":i["Price 03/31/2022"], "06/30/2022":i["Price 06/30/2022"], "09/30/2022":i["Price 09/30/2022"], "12/31/2022":i["Price 12/31/2022"], "Price-As of date":i["Price-As of date"]}
     return ret
 
+# print(fetchMarketValue("AARON SPELLING TRUST CHARLIE & BOSLEY","Shell plc"))
+# print(totalMarketValue("AARON SPELLING TRUST CHARLIE & BOSLEY"))

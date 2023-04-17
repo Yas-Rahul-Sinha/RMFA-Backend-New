@@ -1,6 +1,7 @@
 import pandas as pd
-from data_assessment.main import portfolios
-
+from data_assessment.main import *
+portfolios = pd.read_excel('data/WM Manager Dashboard Data SetV2.xlsx', sheet_name='Portfolio')
+portfolios = getAllMarketValues(portfolios)
 market = pd.read_excel('data/WM Manager Dashboard Data SetV2.xlsx', sheet_name='Market News')
 advisor_list = ["Gunasiri", "Chris", "John", "Sukant"]
 temp = []
@@ -24,7 +25,7 @@ for advisor in adv_market_temp:
                 temp.append(market[sec].to_dict())
     adv_market[advisor] = temp.copy()
     temp.clear()
-print(adv_market['Gunasiri'])
+# print(adv_market['Gunasiri'])
 
 
 
